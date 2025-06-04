@@ -9,11 +9,25 @@ model User {
   id            String    @id @default(uuid()) @db.Uuid
   email         String    @unique
   username      String    @unique
-  password      String
+  password      String?
   roles         String
   googleId      String?
   provider      String?
   isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+
+  Otp Otp[]
+}
+
+model Otp {
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String    @db.Uuid
+  token         String
+  expiryDate    DateTime
+  used          Boolean   @default(false)
+  user          User      @relation(fields: [userId], references: [id])
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
