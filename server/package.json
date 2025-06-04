@@ -1,0 +1,51 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Backend for Wishboard – SaaS Feedback and Roadmap Tool",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "dotenv -e .env.development -- nodemon src/index",
+    "start": "dotenv -e .env.production -- node src/index",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules dotenv -e .env.test -- jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prisma:dev:generate": "dotenv -e .env.development -- prisma generate",
+    "prisma:dev:studio": "dotenv -e .env.development -- prisma studio",
+    "prisma:dev:migrate": "dotenv -e .env.development -- prisma migrate dev --name init",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:reset": "prisma migrate reset --force",
+    "postinstall": "prisma generate",
+    "prisma:test:reset": "dotenv -e .env.test -- npx prisma migrate reset --force",
+    "prisma:test:generate": "dotenv -e .env.test -- npx prisma generate",
+    "prisma:deploy": "dotenv -e .env.production -- npx prisma migrate deploy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.0",
+  "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv-cli": "^8.0.0",
+    "express": "^5.1.0",
+    "jest": "^29.7.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.10",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
+    "babel-jest": "30.0.0-beta.3",
+    "cross-env": "^7.0.3",
+    "prisma": "^6.8.2"
+  },
+  "prisma": {
+    "schema": "src/config/prisma/schema.prisma"
+  }
+}
