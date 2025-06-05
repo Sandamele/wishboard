@@ -19,8 +19,7 @@ export const authentication = (req, res, next) => {
         401,
         STANDARD_MESSAGES["UNAUTHORIZED"],
         {
-          message:
-            "You must log in to access this resource.",
+          message: "You must log in to access this resource.",
         }
       );
     }
@@ -57,9 +56,14 @@ export const authentication = (req, res, next) => {
         }
       );
     }
-    return formatResponse(res, 500, STANDARD_MESSAGES["SERVER_ERROR"], {
-      message:
-        "An error occurred during authentication. Please try again later.",
-    });
+    return formatResponse(
+      res,
+      500,
+      STANDARD_MESSAGES["SERVER_ERROR"],
+      {
+        message:
+          "An error occurred during authentication. Please try again later.",
+      }
+    );
   }
 };

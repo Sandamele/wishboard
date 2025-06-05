@@ -44,9 +44,14 @@ export async function verifyOtp(req, res) {
     });
 
     if (!user) {
-      return formatResponse(res, 404, STANDARD_MESSAGES["NOT_FOUND"], {
-        message: "User not found.",
-      });
+      return formatResponse(
+        res,
+        404,
+        STANDARD_MESSAGES["NOT_FOUND"],
+        {
+          message: "User not found.",
+        }
+      );
     }
 
     // OTP is valid – return success or issue a reset token

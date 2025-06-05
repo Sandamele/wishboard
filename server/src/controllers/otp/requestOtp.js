@@ -8,11 +8,18 @@ const prisma = new PrismaClient();
 export async function requestOtp(req, res) {
   try {
     const { email } = req.body;
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
     if (!user) {
-      return formatResponse(res, 404, STANDARD_MESSAGES["NOT_FOUND"], {
-        message: "Email not found",
-      });
+      return formatResponse(
+        res,
+        404,
+        STANDARD_MESSAGES["NOT_FOUND"],
+        {
+          message: "Email not found",
+        }
+      );
     }
     const generateOtp = Math.floor(
       100000 + Math.random() * 900000

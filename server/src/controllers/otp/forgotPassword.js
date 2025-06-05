@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { formatResponse } from "../../utils/formatResponse.js";
 import { serverError } from "../../utils/serverError.js";
 import { STANDARD_MESSAGES } from "../../utils/statusMessage.js";
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function forgotPassword(req, res) {
@@ -45,9 +45,14 @@ export async function forgotPassword(req, res) {
     });
 
     if (!user) {
-      return formatResponse(res, 404, STANDARD_MESSAGES["NOT_FOUND"], {
-        message: "User not found.",
-      });
+      return formatResponse(
+        res,
+        404,
+        STANDARD_MESSAGES["NOT_FOUND"],
+        {
+          message: "User not found.",
+        }
+      );
     }
     const hashPassword = await bcrypt.hash(password, 10);
     await prisma.user.update({
@@ -64,7 +69,9 @@ export async function forgotPassword(req, res) {
       res,
       200,
       STANDARD_MESSAGES["UPDATE_SUCCESS"],
-      { message: "password updated successfully" }
+      {
+        message: "password updated successfully",
+      }
     );
   } catch (error) {
     console.error(error);

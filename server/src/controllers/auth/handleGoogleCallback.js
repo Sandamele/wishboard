@@ -30,15 +30,20 @@ export function handleGoogleCallback(req, res) {
   };
   const token = createSecureJWT(jwtPayload);
   const decoded = jwt.decode(token);
-  return formatResponse(res, 200, STANDARD_MESSAGES["FETCH_SUCCESS"], {
-    login: true,
-    user: {
-      id: req.user.id,
-      email: req.user.email,
-      role: req.user.roles,
-      provider: req.user.provider,
-    },
-    jwt: token,
-    jwtExpireAt: new Date(decoded.exp * 1000).toISOString(),
-  });
+  return formatResponse(
+    res,
+    200,
+    STANDARD_MESSAGES["FETCH_SUCCESS"],
+    {
+      login: true,
+      user: {
+        id: req.user.id,
+        email: req.user.email,
+        role: req.user.roles,
+        provider: req.user.provider,
+      },
+      jwt: token,
+      jwtExpireAt: new Date(decoded.exp * 1000).toISOString(),
+    }
+  );
 }

@@ -1,5 +1,5 @@
 export const otpEmailTemplate = (otp, title, heading, subHeading) => {
-    const date = new Date();
+  const date = new Date();
   return `<!DOCTYPE html>
 <html lang="en">
 <head>

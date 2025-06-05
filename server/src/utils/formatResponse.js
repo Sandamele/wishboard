@@ -15,7 +15,9 @@ export const formatResponse = (
   payload = null,
   meta = undefined
 ) => {
-  const NO_BODY_STATUSES = new Set([100, 101, 102, 103, 204, 205, 304]);
+  const NO_BODY_STATUSES = new Set([
+    100, 101, 102, 103, 204, 205, 304,
+  ]);
   if (NO_BODY_STATUSES.has(statusCode))
     return res.status(statusCode).end();
   const isSuccess = statusCode >= 200 && statusCode < 300;
@@ -23,7 +25,8 @@ export const formatResponse = (
   const responseBody = {
     code: statusCode,
     success: isSuccess,
-    message: STANDARD_MESSAGES[message] || (isSuccess ? "OK" : "Error"),
+    message:
+      STANDARD_MESSAGES[message] || (isSuccess ? "OK" : "Error"),
   };
 
   if (isSuccess) {

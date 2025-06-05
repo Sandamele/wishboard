@@ -160,17 +160,22 @@ export function handleGoogleCallback(req, res) {
   };
   const token = createSecureJWT(jwtPayload);
   const decoded = jwt.decode(token);
-  return formatResponse(res, 200, STANDARD_MESSAGES["FETCH_SUCCESS"], {
-    login: true,
-    user: {
-      id: req.user.id,
-      email: req.user.email,
-      role: req.user.roles,
-      provider: req.user.provider,
-    },
-    jwt: token,
-    jwtExpireAt: new Date(decoded.exp * 1000).toISOString(),
-  });
+  return formatResponse(
+    res,
+    200,
+    STANDARD_MESSAGES["FETCH_SUCCESS"],
+    {
+      login: true,
+      user: {
+        id: req.user.id,
+        email: req.user.email,
+        role: req.user.roles,
+        provider: req.user.provider,
+      },
+      jwt: token,
+      jwtExpireAt: new Date(decoded.exp * 1000).toISOString(),
+    }
+  );
 }
 
 export const handleLogout = (req, res) => {
@@ -195,13 +200,17 @@ export function googleFailure(req, res) {
 export async function getUser(req, res) {
   try {
     const { id } = req.user;
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
     if (!user) {
       return formatResponse(
         res,
         403,
         STANDARD_MESSAGES["UNAUTHORIZED"],
-        { message: "Not authorized" }
+        {
+          message: "Not authorized",
+        }
       );
     }
     delete user.password;
@@ -221,11 +230,18 @@ export async function getUser(req, res) {
 export async function requestOtp(req, res) {
   try {
     const { email } = req.body;
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
     if (!user) {
-      return formatResponse(res, 404, STANDARD_MESSAGES["NOT_FOUND"], {
-        message: "Email not found",
-      });
+      return formatResponse(
+        res,
+        404,
+        STANDARD_MESSAGES["NOT_FOUND"],
+        {
+          message: "Email not found",
+        }
+      );
     }
     const generateOtp = Math.floor(
       100000 + Math.random() * 900000
@@ -308,9 +324,14 @@ export async function verifyOtp(req, res) {
     });
 
     if (!user) {
-      return formatResponse(res, 404, STANDARD_MESSAGES["NOT_FOUND"], {
-        message: "User not found.",
-      });
+      return formatResponse(
+        res,
+        404,
+        STANDARD_MESSAGES["NOT_FOUND"],
+        {
+          message: "User not found.",
+        }
+      );
     }
 
     // OTP is valid – return success or issue a reset token
@@ -329,16 +350,28 @@ export async function resetPassword(req, res) {
     const { id, provider } = req.user;
     console.log(req.user);
     if (provider == "google") {
-      return formatResponse(res, 403, STANDARD_MESSAGES["FORBIDDEN"], {
-        message: "Oauth cannot reset password",
-      });
+      return formatResponse(
+        res,
+        403,
+        STANDARD_MESSAGES["FORBIDDEN"],
+        {
+          message: "Oauth cannot reset password",
+        }
+      );
     }
     const { oldPassword, newPassword } = req.body;
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
     if (!user) {
-      return formatResponse(res, 404, STANDARD_MESSAGES["NOT_FOUND"], {
-        message: "User not found",
-      });
+      return formatResponse(
+        res,
+        404,
+        STANDARD_MESSAGES["NOT_FOUND"],
+        {
+          message: "User not found",
+        }
+      );
     }
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
@@ -360,7 +393,9 @@ export async function resetPassword(req, res) {
       res,
       200,
       STANDARD_MESSAGES["UPDATE_SUCCESS"],
-      { message: "Password updated" }
+      {
+        message: "Password updated",
+      }
     );
   } catch (error) {
     console.error(error);
@@ -408,9 +443,14 @@ export async function forgotPassword(req, res) {
     });
 
     if (!user) {
-      return formatResponse(res, 404, STANDARD_MESSAGES["NOT_FOUND"], {
-        message: "User not found.",
-      });
+      return formatResponse(
+        res,
+        404,
+        STANDARD_MESSAGES["NOT_FOUND"],
+        {
+          message: "User not found.",
+        }
+      );
     }
     const hashPassword = await bcrypt.hash(password, 10);
     await prisma.user.update({
@@ -427,7 +467,9 @@ export async function forgotPassword(req, res) {
       res,
       200,
       STANDARD_MESSAGES["UPDATE_SUCCESS"],
-      { message: "password updated successfully" }
+      {
+        message: "password updated successfully",
+      }
     );
   } catch (error) {
     console.error(error);

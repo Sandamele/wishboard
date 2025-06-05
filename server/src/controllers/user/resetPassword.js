@@ -9,16 +9,28 @@ export async function resetPassword(req, res) {
     const { id, provider } = req.user;
     console.log(req.user);
     if (provider == "google") {
-      return formatResponse(res, 403, STANDARD_MESSAGES["FORBIDDEN"], {
-        message: "Oauth cannot reset password",
-      });
+      return formatResponse(
+        res,
+        403,
+        STANDARD_MESSAGES["FORBIDDEN"],
+        {
+          message: "Oauth cannot reset password",
+        }
+      );
     }
     const { oldPassword, newPassword } = req.body;
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
     if (!user) {
-      return formatResponse(res, 404, STANDARD_MESSAGES["NOT_FOUND"], {
-        message: "User not found",
-      });
+      return formatResponse(
+        res,
+        404,
+        STANDARD_MESSAGES["NOT_FOUND"],
+        {
+          message: "User not found",
+        }
+      );
     }
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
@@ -40,7 +52,9 @@ export async function resetPassword(req, res) {
       res,
       200,
       STANDARD_MESSAGES["UPDATE_SUCCESS"],
-      { message: "Password updated" }
+      {
+        message: "Password updated",
+      }
     );
   } catch (error) {
     console.error(error);

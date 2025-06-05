@@ -1,13 +1,17 @@
 export async function getUser(req, res) {
   try {
     const { id } = req.user;
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
     if (!user) {
       return formatResponse(
         res,
         403,
         STANDARD_MESSAGES["UNAUTHORIZED"],
-        { message: "Not authorized" }
+        {
+          message: "Not authorized",
+        }
       );
     }
     delete user.password;
