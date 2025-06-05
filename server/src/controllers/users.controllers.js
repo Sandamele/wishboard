@@ -1,5 +1,5 @@
 import { formatResponse } from "../utils/formatResponse.js";
-import { PrismaClient} from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { STANDARD_MESSAGES } from "../utils/statusMessage.js";
 import { serverError } from "../utils/serverError.js";
@@ -60,17 +60,15 @@ export async function emailLogin(req, res) {
       where: { email },
     });
 
-    const incorrectCredentialMessage = formatResponse(
-      res,
-      404,
-      STANDARD_MESSAGES["NOT_FOUND"],
-      {
-        message: "Either email or password is incorrect",
-      }
-    );
-
     if (!user || user.provider !== "local") {
-      return incorrectCredentialMessage;
+      return formatResponse(
+        res,
+        401,
+        STANDARD_MESSAGES["UNAUTHORIZED"],
+        {
+          message: "Either email or password is incorrect",
+        }
+      );
     }
 
     const passwordCorrect = await bcrypt.compare(
@@ -78,13 +76,21 @@ export async function emailLogin(req, res) {
       user.password
     );
     if (!passwordCorrect) {
-      return incorrectCredentialMessage;
+      return formatResponse(
+        res,
+        401,
+        STANDARD_MESSAGES["UNAUTHORIZED"],
+        {
+          message: "Either email or password is incorrect",
+        }
+      );
     }
 
     const jwtPayload = {
       id: user.id,
       email: user.email,
       role: user.roles,
+      provider: user.provider,
       isActive: user.isActive,
     };
     const token = createSecureJWT(jwtPayload);
@@ -149,6 +155,7 @@ export function handleGoogleCallback(req, res) {
     id: req.user.id,
     email: req.user.email,
     role: req.user.roles,
+    provider: req.user.provider,
     isActive: req.user.isActive,
   };
   const token = createSecureJWT(jwtPayload);
@@ -220,14 +227,6 @@ export async function requestOtp(req, res) {
         message: "Email not found",
       });
     }
-    if (user.provider === "google") {
-      return formatResponse(
-        res,
-        400,
-        STANDARD_MESSAGES["BAD_REQUEST"],
-        { message: "Not allowed" }
-      );
-    }
     const generateOtp = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
@@ -235,9 +234,9 @@ export async function requestOtp(req, res) {
       data: {
         userId: user.id,
         token: generateOtp,
-        expiryDate: new Date(Date.now() + 10 * 60 * 1000)
-      }
-    })
+        expiryDate: new Date(Date.now() + 10 * 60 * 1000),
+      },
+    });
     const emailSent = await sendEmail(
       email,
       "Password Reset OTP",
@@ -269,13 +268,18 @@ export async function requestOtp(req, res) {
   }
 }
 
-export async function verifyOtp (req, res) {
+export async function verifyOtp(req, res) {
   try {
     const otp = req.params.id;
     if (!otp) {
-      return formatResponse(res, 400, STANDARD_MESSAGES["BAD_REQUEST"], {
-        message: "OTP are required.",
-      });
+      return formatResponse(
+        res,
+        400,
+        STANDARD_MESSAGES["BAD_REQUEST"],
+        {
+          message: "OTP are required.",
+        }
+      );
     }
     const otpRecord = await prisma.otp.findFirst({
       where: {
@@ -290,11 +294,18 @@ export async function verifyOtp (req, res) {
       },
     });
     if (!otpRecord) {
-      return formatResponse(res, 400, STANDARD_MESSAGES["BAD_REQUEST"], {
-        message: "Invalid or expired OTP.",
-      });
+      return formatResponse(
+        res,
+        400,
+        STANDARD_MESSAGES["BAD_REQUEST"],
+        {
+          message: "Invalid or expired OTP.",
+        }
+      );
     }
-    const user = await prisma.user.findUnique({ where: { id: otpRecord.userId } });
+    const user = await prisma.user.findUnique({
+      where: { id: otpRecord.userId },
+    });
 
     if (!user) {
       return formatResponse(res, 404, STANDARD_MESSAGES["NOT_FOUND"], {
@@ -302,16 +313,10 @@ export async function verifyOtp (req, res) {
       });
     }
 
-    // Mark OTP as used
-    await prisma.otp.update({
-      where: { id: otpRecord.id },
-      data: { used: true },
-    });
-
     // OTP is valid – return success or issue a reset token
     return formatResponse(res, 200, STANDARD_MESSAGES["SUCCESS"], {
       message: "OTP verified successfully.",
-      jwt: createSecureJWT({id: user.id}, "10m")
+      jwt: createSecureJWT({ id: user.id }, "10m"),
     });
   } catch (error) {
     console.error(error);
@@ -319,32 +324,111 @@ export async function verifyOtp (req, res) {
   }
 }
 
-export async function resetPassword (req, res) {
+export async function resetPassword(req, res) {
   try {
-    const {id} = req.user;
-    const { password } = req.body;
-    const user = await prisma.user.findUnique({ where: { id}});
-    if (!user) {
-      return formatResponse(
-        res, 
-        404, 
-        STANDARD_MESSAGES["NOT_FOUND"], 
-        {message: "User not found"}
-      )
+    const { id, provider } = req.user;
+    console.log(req.user);
+    if (provider == "google") {
+      return formatResponse(res, 403, STANDARD_MESSAGES["FORBIDDEN"], {
+        message: "Oauth cannot reset password",
+      });
     }
-    const hashPassword = await bcrypt(password, 10);
+    const { oldPassword, newPassword } = req.body;
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      return formatResponse(res, 404, STANDARD_MESSAGES["NOT_FOUND"], {
+        message: "User not found",
+      });
+    }
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return formatResponse(
+        res,
+        401,
+        STANDARD_MESSAGES["UNAUTHORIZED"],
+        "Invalid current password"
+      );
+    }
+    const hashPassword = await bcrypt.hash(newPassword, 10);
     await prisma.user.update({
       data: {
-        password: hashPassword
+        password: hashPassword,
       },
-      where: { id }
-    })
+      where: { id },
+    });
     return formatResponse(
-      res, 
-      200, 
-      STANDARD_MESSAGES["UPDATE_SUCCESS"], 
-      {message: "password updated successfully"}
-    )
+      res,
+      200,
+      STANDARD_MESSAGES["UPDATE_SUCCESS"],
+      { message: "Password updated" }
+    );
+  } catch (error) {
+    console.error(error);
+    return serverError(res);
+  }
+}
+
+export async function forgotPassword(req, res) {
+  try {
+    const { id: otp, password } = req.params;
+    if (!otp) {
+      return formatResponse(
+        res,
+        400,
+        STANDARD_MESSAGES["BAD_REQUEST"],
+        {
+          message: "OTP are required.",
+        }
+      );
+    }
+    const otpRecord = await prisma.otp.findFirst({
+      where: {
+        token: otp,
+        used: false,
+        expiryDate: {
+          gte: new Date(),
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    if (!otpRecord) {
+      return formatResponse(
+        res,
+        400,
+        STANDARD_MESSAGES["BAD_REQUEST"],
+        {
+          message: "Invalid or expired OTP.",
+        }
+      );
+    }
+    const user = await prisma.user.findUnique({
+      where: { id: otpRecord.userId },
+    });
+
+    if (!user) {
+      return formatResponse(res, 404, STANDARD_MESSAGES["NOT_FOUND"], {
+        message: "User not found.",
+      });
+    }
+    const hashPassword = await bcrypt.hash(password, 10);
+    await prisma.user.update({
+      data: {
+        password: hashPassword,
+      },
+      where: { id: user.id },
+    });
+    await prisma.otp.update({
+      where: { id: otpRecord.id },
+      data: { used: true },
+    });
+    return formatResponse(
+      res,
+      200,
+      STANDARD_MESSAGES["UPDATE_SUCCESS"],
+      { message: "password updated successfully" }
+    );
   } catch (error) {
     console.error(error);
     return serverError(res);
