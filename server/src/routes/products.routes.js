@@ -14,6 +14,6 @@ route.post(
 route.get("/", productController.findAllProducts);
 route.get("/:id", productController.findProduct);
 route.patch("/:id", productController.updateProduct);
-route.delete("/:id", productController.deleteProduct)
+route.delete("/:id", productController.deleteProduct);
 // route.get("/user", productController.findAllProducts);
 export default route;

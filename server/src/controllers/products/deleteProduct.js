@@ -27,7 +27,9 @@ export async function deleteProduct(req, res) {
         { message: "Only admins can delete products" }
       );
     }
-    const product = await prisma.product.findUnique({where: {id: productId}});
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
     if (!product) {
       return formatResponse(
         res,

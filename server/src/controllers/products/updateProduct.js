@@ -28,34 +28,36 @@ export async function updateProduct(req, res) {
         { message: "Only admins can update products" }
       );
     }
-    const product = await prisma.product.findUnique({where: {
+    const product = await prisma.product.findUnique({
+      where: {
         id: productId,
-        userId
-    }})
+        userId,
+      },
+    });
     if (!product) {
-        return formatResponse(
+      return formatResponse(
         res,
         404,
         STANDARD_MESSAGES["NOT_FOUND"],
         { message: "Product not found" }
       );
     }
-     const { name, description, logoUrl } = req.body;
+    const { name, description, logoUrl } = req.body;
     const data = {
-        ...(name && {name, slug: generateSlug(name)}),
-        ...(description && {description}),
-        ...(logoUrl && {logoUrl})
+      ...(name && { name, slug: generateSlug(name) }),
+      ...(description && { description }),
+      ...(logoUrl && { logoUrl }),
     };
     const updateProduct = await prisma.product.update({
-        data,
-        where: { id: productId}
-    })
+      data,
+      where: { id: productId },
+    });
     return formatResponse(
-        res, 
-        200, 
-        STANDARD_MESSAGES["UPDATE_SUCCESS"], 
-        {...updateProduct}
-    )
+      res,
+      200,
+      STANDARD_MESSAGES["UPDATE_SUCCESS"],
+      { ...updateProduct }
+    );
   } catch (error) {
     console.error(error);
     return serverError(res);
