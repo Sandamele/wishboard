@@ -8,6 +8,10 @@ import {
 } from "../controllers/index.js";
 import { registerValidator } from "../validators/auth/registerValidator.js";
 import { validateRequest } from "../middleware/validationResult.js";
+import { loginValidator } from "../validators/auth/loginValidator.js";
+import { forgotPasswordValidator } from "../validators/otp/forgotPasswordValidator.js";
+import { otpRequestValidator } from "../validators/otp/otpRequestValidator.js";
+import { resetPasswordValidator } from "../validators/auth/resetPasswordValidator.js";
 
 const router = express.Router();
 
@@ -17,7 +21,12 @@ router.post(
   validateRequest,
   authController.emailRegister
 );
-router.post("/auth/login/local", authController.emailLogin);
+router.post(
+  "/auth/login/local",
+  loginValidator,
+  validateRequest,
+  authController.emailLogin
+);
 router.get("/auth/register/google", authController.googleRegister);
 router.get("/auth/login/google", authController.googleLogin);
 router.get(
@@ -30,12 +39,24 @@ router.get(
 );
 router.get("/auth/google/failture", authController.googleFailure);
 router.get("/me", authentication, userController.getUser);
-router.post("/otp", otpController.requestOtp);
+router.post(
+  "/otp",
+  otpRequestValidator,
+  validateRequest,
+  otpController.requestOtp
+);
 router.get("/otp/verify/:id", otpController.verifyOtp);
-router.post("/auth/forgot-password", otpController.forgotPassword);
+router.post(
+  "/auth/forgot-password",
+  forgotPasswordValidator,
+  validateRequest,
+  otpController.forgotPassword
+);
 router.post(
   "/auth/reset-password",
   authentication,
+  resetPasswordValidator,
+  validateRequest,
   userController.resetPassword
 );
 export default router;

@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 export async function resetPassword(req, res) {
   try {
     const { id, provider } = req.user;
-    console.log(req.user);
     if (provider == "google") {
       return formatResponse(
         res,

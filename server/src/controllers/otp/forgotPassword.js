@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 export async function forgotPassword(req, res) {
   try {
-    const { id: otp, password } = req.params;
+    const { otp, password } = req.body;
     if (!otp) {
       return formatResponse(
         res,
