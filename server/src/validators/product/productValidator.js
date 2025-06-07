@@ -5,10 +5,12 @@ export const productValidator = [
     .notEmpty()
     .trim()
     .isLength({ min: 3 })
+    .escape()
     .withMessage("Enter vaild product name"),
   body("description")
     .notEmpty()
     .trim()
+    .escape()
     .isLength({ min: 3 })
     .withMessage("Enter product description"),
 ];

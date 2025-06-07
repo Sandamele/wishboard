@@ -12,9 +12,15 @@ import { loginValidator } from "../validators/auth/loginValidator.js";
 import { forgotPasswordValidator } from "../validators/otp/forgotPasswordValidator.js";
 import { otpRequestValidator } from "../validators/otp/otpRequestValidator.js";
 import { resetPasswordValidator } from "../validators/auth/resetPasswordValidator.js";
-
+import { rateLimit } from 'express-rate-limit';
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 15,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+})
 const router = express.Router();
-
+router.use(limiter)
 router.post(
   "/auth/register/local",
   registerValidator,

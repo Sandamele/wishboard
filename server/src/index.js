@@ -9,6 +9,7 @@ import userRoutes from "./routes/users.routes.js";
 import productRoutes from "./routes/products.routes.js";
 import { STANDARD_MESSAGES } from "./utils/statusMessage.js";
 import { authentication } from "./middleware/authentication.js";
+
 const PORT = process.env.PORT || 1338;
 
 const app = express();
