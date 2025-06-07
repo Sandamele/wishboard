@@ -6,7 +6,9 @@ import cors from "cors";
 import "./config/auth/passport.js";
 import { formatResponse } from "./utils/formatResponse.js";
 import userRoutes from "./routes/users.routes.js";
+import productRoutes from "./routes/products.routes.js";
 import { STANDARD_MESSAGES } from "./utils/statusMessage.js";
+import { authentication } from "./middleware/authentication.js";
 const PORT = process.env.PORT || 1338;
 
 const app = express();
@@ -55,7 +57,7 @@ app.get("/", (req, res) => {
 
 // Verson 1
 app.use("/api/v1/users/", userRoutes);
-
+app.use("/api/v1/products/", authentication, productRoutes);
 // Catch-all handler for any routes not matched above
 // Responds with a 404 Not Found and standard message
 app.use((req, res) => {

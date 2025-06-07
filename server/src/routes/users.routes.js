@@ -11,7 +11,12 @@ import { validateRequest } from "../middleware/validationResult.js";
 
 const router = express.Router();
 
-router.post("/auth/register/local", registerValidator, validateRequest, authController.emailRegister);
+router.post(
+  "/auth/register/local",
+  registerValidator,
+  validateRequest,
+  authController.emailRegister
+);
 router.post("/auth/login/local", authController.emailLogin);
 router.get("/auth/register/google", authController.googleRegister);
 router.get("/auth/login/google", authController.googleLogin);

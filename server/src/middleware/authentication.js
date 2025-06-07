@@ -9,7 +9,8 @@ export const authentication = (req, res, next) => {
       return formatResponse(
         res,
         401,
-        STANDARD_MESSAGES["UNAUTHORIZED"]
+        STANDARD_MESSAGES["UNAUTHORIZED"],
+        { message: "You must be login to access this resource." }
       );
     }
     const token = removeBearer(req.headers.authorization);
@@ -19,7 +20,7 @@ export const authentication = (req, res, next) => {
         401,
         STANDARD_MESSAGES["UNAUTHORIZED"],
         {
-          message: "You must log in to access this resource.",
+          message: "You must be login to access this resource.",
         }
       );
     }
@@ -30,7 +31,7 @@ export const authentication = (req, res, next) => {
         401,
         STANDARD_MESSAGES["UNAUTHORIZED"],
         {
-          message: "You must log in to access this resource.",
+          message: "You must be login to access this resource.",
         }
       );
     }
@@ -43,7 +44,7 @@ export const authentication = (req, res, next) => {
         401,
         STANDARD_MESSAGES["UNAUTHORIZED"],
         {
-          message: "Invalid token. Please log in again.",
+          message: "Invalid token. Please login again.",
         }
       );
     } else if (error.name === "TokenExpiredError") {
@@ -52,7 +53,7 @@ export const authentication = (req, res, next) => {
         401,
         STANDARD_MESSAGES["UNAUTHORIZED"],
         {
-          message: "Your session has expired. Please log in again.",
+          message: "Your session has expired. Please login again.",
         }
       );
     }

@@ -1,7 +1,7 @@
 export const formatValidationErrors = (validationErrors = []) => {
-    const formattedErrors = validationErrors.map(({ msg, path }) => ({
-        message: msg,
-        field: path
-    }));
-    return formattedErrors;
-}
+  const formattedErrors = validationErrors.map(({ msg, path }) => ({
+    message: msg,
+    field: path,
+  }));
+  return formattedErrors;
+};

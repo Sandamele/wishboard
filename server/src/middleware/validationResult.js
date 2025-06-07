@@ -10,7 +10,7 @@ export function validateRequest(req, res, next) {
       res,
       400,
       STANDARD_MESSAGES["BAD_REQUEST"],
-      {validation: formatValidationErrors(errors.array())}
+      { validation: formatValidationErrors(errors.array()) }
     );
   }
   next();
