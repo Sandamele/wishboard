@@ -11,7 +11,7 @@ export const paginate = async (
       skip,
       take: parseInt(pageSize),
     }),
-    countFn(props.where || {}),
+    countFn({where: props.where || {}}),
   ]);
 
   const totalPages = Math.ceil(total / parseInt(pageSize));

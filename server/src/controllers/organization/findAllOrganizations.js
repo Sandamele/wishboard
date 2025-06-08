@@ -5,7 +5,7 @@ import { STANDARD_MESSAGES } from "../../utils/statusMessage.js";
 import { paginate } from "../../utils/paginate.js";
 const prisma = new PrismaClient();
 export async function findAllOrganizations(req, res) {
-  const { page, pageSize } = req.query;
+  const { page, pageSize, search = ""} = req.query;
   try {
     const organization = await paginate(
       prisma.organization.findMany,
@@ -17,6 +17,7 @@ export async function findAllOrganizations(req, res) {
           id: true,
           name: true,
         },
+        where: search !== "" ? { name : { contains: search, mode: "insensitive" }} : {}
       }
     );
     return formatResponse(
