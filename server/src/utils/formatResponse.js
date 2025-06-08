@@ -52,4 +52,5 @@ const STANDARD_MESSAGES = {
   SERVER_ERROR: "An unexpected error occurred",
   UNAUTHORIZED: "Unauthorized",
   FORBIDDEN: "Forbidden",
+  Conflict: "Conflict"
 };
