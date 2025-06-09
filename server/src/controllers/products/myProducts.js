@@ -1,12 +1,25 @@
 import { PrismaClient } from "@prisma/client";
 import { serverError } from "../../utils/serverError.js";
-import { formatResponse } from "../../utils/formatResponse.js";
-import { STANDARD_MESSAGES } from "../../utils/statusMessage.js";
 import { paginate } from "../../utils/paginate.js";
+import { formatResponse } from "../../utils/formatResponse.js";
+import { findUser } from "../../utils/findUser.js";
+import { STANDARD_MESSAGES } from "../../utils/statusMessage.js";
 const prisma = new PrismaClient();
-export async function findAllProducts(req, res) {
-  const { page, pageSize, search="" } = req.query;
+export async function myProducts(req, res) {
   try {
+    const { page, pageSize, search = "" } = req.query;
+    const { id } = req.user;
+    const user = await findUser({ id });
+    if (!user) {
+      return formatResponse(
+        res,
+        401,
+        STANDARD_MESSAGES["UNAUTHORIZED"],
+        {
+          message: "Invalid user",
+        }
+      );
+    }
     const products = await paginate(
       prisma.product.findMany,
       prisma.product.count,
@@ -20,7 +33,10 @@ export async function findAllProducts(req, res) {
           description: true,
           logoUrl: true,
         },
-        where: search !== "" ? {name: {contains: search, mode: "insensitive"}} : {}
+        where:
+          search !== ""
+            ? { name: { contains: search, mode: "insensitive" }, userId: id }
+            : { userId: id},
       }
     );
     return formatResponse(
@@ -30,7 +46,7 @@ export async function findAllProducts(req, res) {
       products
     );
   } catch (error) {
-    console.error(error);
+    console.error(error)
     return serverError(res);
   }
 }

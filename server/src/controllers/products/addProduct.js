@@ -28,6 +28,17 @@ export async function addProduct(req, res) {
         { message: "Only admins can add products" }
       );
     }
+
+    const organization = await prisma.organization.findUnique({where: { id:req.body.organizationId, userId: id}});
+    if(!organization) {
+      return formatResponse(
+        res,
+        404,
+        STANDARD_MESSAGES["NOT_FOUND"],
+        { message: "Organization not found" }
+      );
+    }
+
     let attempts = 0;
     let product = null;
     let success = false;

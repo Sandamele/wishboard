@@ -13,4 +13,9 @@ export const productValidator = [
     .escape()
     .isLength({ min: 3 })
     .withMessage("Enter product description"),
+  body("organizationId")
+    .notEmpty()
+    .trim()
+    .escape()
+    .withMessage("Organization is required"),
 ];

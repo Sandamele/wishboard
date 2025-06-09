@@ -6,7 +6,7 @@ import { addOrganizationValidator } from '../validators/organization/addOrganiza
 const route = express.Router();
 route.post("/", addOrganizationValidator, validateRequest,organizationController.addOrganization);
 route.get("/", organizationController.findAllOrganizations);
-route.get("/me", organizationController.myOrganizations)
+route.get("/my", organizationController.myOrganizations)
 route.get("/:id", organizationController.findOrganizations);
 route.patch("/:id", organizationController.updateOrganization);
 route.delete("/:id", organizationController.deleteOrganization);
